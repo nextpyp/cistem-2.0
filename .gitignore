@@ -1,0 +1,4 @@
+build/*
+m4/*
+config.log
+autom4te*
