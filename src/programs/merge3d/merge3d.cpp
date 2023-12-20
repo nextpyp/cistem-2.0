@@ -118,6 +118,7 @@ bool Merge3DApp::DoCalculation( ) {
     bool       insert_even;
     bool       center_mass;
     bool       crop_images;
+    float min = 0.0, max = 0.0; 
 
     NumericTextFile output_statistics_file(output_resolution_statistics, OPEN_TO_WRITE, 7);
 
@@ -162,6 +163,11 @@ bool Merge3DApp::DoCalculation( ) {
         if ( (is_running_locally && DoesFileExist(dump_file)) || (! is_running_locally && DoesFileExistWithWait(dump_file, 90)) ) // C++ standard says if LHS of OR is true, RHS never gets evaluated
         {
             temp_reconstruction.ReadArrays(dump_file);
+            temp_reconstruction.image_reconstruction.GetMinMax(min, max);
+            if (min == 0.0 && max == 0.0) {
+                wxPrintf("%s is empty. Skipping...\n", dump_file);
+                continue;
+            }
             my_reconstruction_1 += temp_reconstruction;
         }
         else {
@@ -176,6 +182,11 @@ bool Merge3DApp::DoCalculation( ) {
         if ( (is_running_locally && DoesFileExist(dump_file)) || (! is_running_locally && DoesFileExistWithWait(dump_file, 90)) ) // C++ standard says if LHS of OR is true, RHS never gets evaluated
         {
             temp_reconstruction.ReadArrays(dump_file);
+            temp_reconstruction.image_reconstruction.GetMinMax(min, max);
+            if (min == 0.0 && max == 0.0) {
+                wxPrintf("%s is empty. Skipping...\n", dump_file);
+                continue;
+            }
             my_reconstruction_2 += temp_reconstruction;
         }
         else {
