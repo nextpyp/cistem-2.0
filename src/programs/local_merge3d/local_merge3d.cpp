@@ -82,6 +82,14 @@ bool Merge3DApp::DoCalculation( ) {
     
     my_time_in = wxDateTime::Now( );
 
+    // wxString    my_symmetry = "C1";
+    // wxString    dump_file_1 = "half1.mrc";
+    // wxString    dump_file_2 = "half2.mrc";
+    // Reconstruct3D my_reconstruction_1(1.0, 256, 256, 256, 100.0, 5.0, 5.0, my_symmetry);
+    // my_reconstruction_1.DumpArrays(dump_file_1, false);
+    // my_reconstruction_1.DumpArrays(dump_file_2, true);
+
+    // exit(1);
     dump_file = wxFileName::StripExtension(dump_file_seed_1) + wxString::Format("%i", 1) + "." + extension;
 
     if ( (is_running_locally && DoesFileExist(dump_file)) || (! is_running_locally && DoesFileExistWithWait(dump_file, 90)) ) // C++ standard says if LHS of OR is true, RHS never gets evaluated
@@ -103,6 +111,7 @@ bool Merge3DApp::DoCalculation( ) {
     Reconstruct3D my_reconstruction_2(logical_x_dimension, logical_y_dimension, logical_z_dimension, pixel_size, average_occupancy, average_sigma, sigma_bfactor_conversion, my_symmetry);
 
     wxPrintf("\nReading reconstruction arrays...\n\n");
+    float min = 0.0, max = 0.0; 
 
     for ( count = 1; count <= number_of_dump_files; count++ ) {
         dump_file = wxFileName::StripExtension(dump_file_seed_1) + wxString::Format("%i", count) + "." + extension;
@@ -110,6 +119,11 @@ bool Merge3DApp::DoCalculation( ) {
         if ( (is_running_locally && DoesFileExist(dump_file)) || (! is_running_locally && DoesFileExistWithWait(dump_file, 90)) ) // C++ standard says if LHS of OR is true, RHS never gets evaluated
         {
             temp_reconstruction.ReadArrays(dump_file);
+            temp_reconstruction.image_reconstruction.GetMinMax(min, max);
+            if (min == 0.0 && max == 0.0) {
+                wxPrintf("%s is empty. Skipping...\n", dump_file);
+                continue;
+            }
             my_reconstruction_1 += temp_reconstruction;
         }
         else {
@@ -124,6 +138,11 @@ bool Merge3DApp::DoCalculation( ) {
         if ( (is_running_locally && DoesFileExist(dump_file)) || (! is_running_locally && DoesFileExistWithWait(dump_file, 90)) ) // C++ standard says if LHS of OR is true, RHS never gets evaluated
         {
             temp_reconstruction.ReadArrays(dump_file);
+            temp_reconstruction.image_reconstruction.GetMinMax(min, max);
+            if (min == 0.0 && max == 0.0) {
+                wxPrintf("%s is empty. Skipping...\n", dump_file);
+                continue;
+            }
             my_reconstruction_2 += temp_reconstruction;
         }
         else {
@@ -135,7 +154,11 @@ bool Merge3DApp::DoCalculation( ) {
     wxPrintf("\nFinished reading arrays\n");
 
     my_reconstruction_1.DumpArrays(output_dumpfile_1, false);
+    my_reconstruction_1.image_reconstruction.GetMinMax(min, max);
+    if (min == 0.0 && max == 0.0) wxPrintf("Output %s is empty.\n", output_dumpfile_1);
     my_reconstruction_2.DumpArrays(output_dumpfile_2, true);
+    my_reconstruction_2.image_reconstruction.GetMinMax(min, max);
+    if (min == 0.0 && max == 0.0) wxPrintf("Output %s is empty.\n", output_dumpfile_2);
 
     wxPrintf("\nFinished merging intermediate reconstruction\n");
 
