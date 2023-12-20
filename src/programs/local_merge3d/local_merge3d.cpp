@@ -82,14 +82,6 @@ bool Merge3DApp::DoCalculation( ) {
     
     my_time_in = wxDateTime::Now( );
 
-    // wxString    my_symmetry = "C1";
-    // wxString    dump_file_1 = "half1.mrc";
-    // wxString    dump_file_2 = "half2.mrc";
-    // Reconstruct3D my_reconstruction_1(1.0, 256, 256, 256, 100.0, 5.0, 5.0, my_symmetry);
-    // my_reconstruction_1.DumpArrays(dump_file_1, false);
-    // my_reconstruction_1.DumpArrays(dump_file_2, true);
-
-    // exit(1);
     dump_file = wxFileName::StripExtension(dump_file_seed_1) + wxString::Format("%i", 1) + "." + extension;
 
     if ( (is_running_locally && DoesFileExist(dump_file)) || (! is_running_locally && DoesFileExistWithWait(dump_file, 90)) ) // C++ standard says if LHS of OR is true, RHS never gets evaluated
