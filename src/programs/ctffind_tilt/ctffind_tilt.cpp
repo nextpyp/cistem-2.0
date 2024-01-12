@@ -1697,7 +1697,7 @@ bool CtffindApp::DoCalculation( ) {
     double*             fit_frc_sigma                             = NULL;
     MRCFile             output_diagnostic_file(output_diagnostic_filename, true);
     int                 last_bin_with_good_fit;
-    double*             values_to_write_out = new double[9];
+    double*             values_to_write_out = new double[7];
     float               best_score_after_initial_phase;
     int                 last_bin_without_aliasing;
     ImageFile           gain_file;
@@ -1755,14 +1755,14 @@ bool CtffindApp::DoCalculation( ) {
     output_text_fn = FilenameReplaceExtension(output_diagnostic_filename, "txt");
 
     if ( is_running_locally ) {
-        output_text = new NumericTextFile(output_text_fn, OPEN_TO_WRITE, 9);
+        output_text = new NumericTextFile(output_text_fn, OPEN_TO_WRITE, 7);
 
         // Print header to the output text file
         output_text->WriteCommentLine("# Output from CTFFind version %s, run on %s\n", ctffind_version.c_str( ), wxDateTime::Now( ).FormatISOCombined(' ').ToStdString( ).c_str( ));
         output_text->WriteCommentLine("# Input file: %s ; Number of micrographs: %i\n", input_filename.c_str( ), number_of_micrographs);
         output_text->WriteCommentLine("# Pixel size: %0.3f Angstroms ; acceleration voltage: %0.1f keV ; spherical aberration: %0.2f mm ; amplitude contrast: %0.2f\n", pixel_size_of_input_image, acceleration_voltage, spherical_aberration, amplitude_contrast);
         output_text->WriteCommentLine("# Box size: %i pixels ; min. res.: %0.1f Angstroms ; max. res.: %0.1f Angstroms ; min. def.: %0.1f um; max. def. %0.1f um\n", box_size, minimum_resolution, maximum_resolution, minimum_defocus, maximum_defocus);
-        output_text->WriteCommentLine("# Columns: #1 - micrograph number; #2 - defocus 1 [Angstroms]; #3 - defocus 2; #4 - azimuth of astigmatism; #5 - additional phase shift [radians]; #6 - cross correlation; #7 - spacing (in Angstroms) up to which CTF rings were fit successfully; #8 - Estimated tilt axis; #9 - Estimated tilt angle\n");
+        output_text->WriteCommentLine("# Columns: #1 - micrograph number; #2 - defocus 1 [Angstroms]; #3 - defocus 2; #4 - azimuth of astigmatism; #5 - additional phase shift [radians]; #6 - cross correlation; #7 - spacing (in Angstroms) up to which CTF rings were fit successfully\n");
     }
 
     // Prepare a text file with 1D rotational average spectra
@@ -2663,13 +2663,10 @@ bool CtffindApp::DoCalculation( ) {
             if ( find_additional_phase_shift ) {
                 wxPrintf("Additional phase shift          : %0.3f degrees (%0.3f radians) (%0.3f PIf)\n", current_ctf->GetAdditionalPhaseShift( ) / PIf * 180.0, current_ctf->GetAdditionalPhaseShift( ), current_ctf->GetAdditionalPhaseShift( ) / PIf);
             }
-            if ( determine_tilt ) {
+            if ( determine_tilt )
                 wxPrintf("Tilt_axis, tilt angle           : %0.2f , %0.2f degrees\n", tilt_axis, tilt_angle);
-                wxPrintf("Score                           : %0.5f\n", final_score);
-                wxPrintf("Pixel size for fitting          : %0.3f Angstroms\n", pixel_size_for_fitting);
-                values_to_write_out[7] = tilt_axis;
-                values_to_write_out[8] = tilt_angle;
-            }
+            wxPrintf("Score                           : %0.5f\n", final_score);
+            wxPrintf("Pixel size for fitting          : %0.3f Angstroms\n", pixel_size_for_fitting);
             if ( compute_extra_stats ) {
                 wxPrintf("Thon rings with good fit up to  : %0.1f Angstroms\n", pixel_size_for_fitting / spatial_frequency[last_bin_with_good_fit]);
                 if ( last_bin_without_aliasing != 0 ) {
